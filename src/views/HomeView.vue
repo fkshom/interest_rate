@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed, watchEffect } from 'vue'
+import { ref, watch, computed, watchEffect, toRefs } from 'vue'
 import type { Header, Item, SortType } from "vue3-easy-data-table";
 import { 元金均等返済, 元利均等返済, type 繰り上げ返済, type 金利変動, } from '@/lib/interest_rate'
 import { zip } from '@/lib/common'
@@ -9,51 +9,16 @@ import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, Li
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, PointElement, LineElement, Filler )
 import draggable from 'vuedraggable'
 
+import { useFormStore } from '@/stores/form';
+const formStore = toRefs(useFormStore())
+import { pinia } from '@/main'
 
-interface 繰り上げ返済item {
-  回目: number|'',
-  金額: number|'',
-  タイプ: '期間短縮型' | '返済額軽減型',
-  有効: boolean,
-}
-
-interface 金利変動item {
-  回目: number|'',
-  金利: number|'',
-  有効: boolean,
-}
-
-const 借入額 = ref<number>(100)
-const 金利 = ref<number>(2.0)
-const 借入期間 = ref<number>(120)
-const 返済方法 = ref<'元利均等'|'元金均等'>("元利均等")
-const 繰り上げ返済items = ref<繰り上げ返済item[]>([
-{
-    回目: 2,
-    金額: 3,
-    タイプ: '期間短縮型',
-    有効: true,
-  },
-  {
-    回目: 3,
-    金額: 3,
-    タイプ: '期間短縮型',
-    有効: true,
-  },
-  {
-    回目: 40,
-    金額: 3,
-    タイプ: '返済額軽減型',
-    有効: false,
-  }
-])
-const 金利変動items = ref<金利変動item[]>([
-  {
-    回目: 60,
-    金利: 20.0,
-    有効: true,
-  }
-])
+const 借入額 = formStore.借入額
+const 金利 = formStore.金利
+const 借入期間 = formStore.借入期間
+const 返済方法 = formStore.返済方法
+const 繰り上げ返済items = formStore.繰り上げ返済items
+const 金利変動items = formStore.金利変動items
 
 const itemsPerPage = ref(500)
 const headers = ref<Header[]>([
@@ -65,7 +30,7 @@ const headers = ref<Header[]>([
 ])
 
 const items = ref<Item[]>()
-const stackGraph = ref(true)
+const 返済元金と返済利息を積み重ねる = formStore.返済元金と返済利息を積み重ねる
 const chartData = ref<ChartData<'line'>>({
     labels: [],
     datasets: []
@@ -138,7 +103,7 @@ function refreshGraph(){
     y残債.push(row[4].toString())
   }
 
-  if(stackGraph.value === true){
+  if(返済元金と返済利息を積み重ねる.value === true){
     chartData.value = {
       labels: xdata,
       datasets: [
@@ -174,7 +139,7 @@ function refreshGraph(){
         yAxies3: {
           type: 'linear',
           position: 'right',
-          stacked: stackGraph.value,
+          stacked: 返済元金と返済利息を積み重ねる.value,
           min: 0,
           suggestedMax: Math.max(Math.max(...y返済額)),
         },
@@ -228,7 +193,7 @@ function refreshGraph(){
   }
 }
 
-watch(() => [result, stackGraph], () => {
+watch(() => [result, 返済元金と返済利息を積み重ねる], () => {
   refreshItems()
   refreshGraph()
 }, {
@@ -249,6 +214,9 @@ function add繰り上げ返済(){
     有効: true,
   })
 }
+function reset繰り上げ返済(){
+  formStore.reset繰り上げ返済items.value()  // TODO
+}
 function delete繰り上げ返済(index: number){
   繰り上げ返済items.value.splice(index, 1)
 }
@@ -259,6 +227,9 @@ function add金利変動(){
     金利: '',
     有効: true,
   })
+}
+function reset金利変動(){
+  formStore.reset金利変動items.value()  // TODO
 }
 function delete金利変動(index: number){
   金利変動items.value.splice(index, 1)
@@ -334,6 +305,9 @@ function aaa(){
         <v-btn title="繰り上げ返済を追加" variant="text" @click="add繰り上げ返済">
           <v-icon icon="mdi-plus-box-outline" size="x-large"></v-icon>
           </v-btn>
+          <v-btn title="初期化" variant="text" @click="reset繰り上げ返済">
+              初期化
+          </v-btn>
       </v-row>
       <v-row>
         金利変動
@@ -371,6 +345,9 @@ function aaa(){
         <v-btn title="金利変動を追加" variant="text" @click="add金利変動">
           <v-icon icon="mdi-plus-box-outline" size="x-large"></v-icon>
           </v-btn>
+          <v-btn title="初期化" variant="text" @click="reset金利変動">
+          初期化
+          </v-btn>
       </v-row>
     </v-container>
   </v-form>
@@ -386,7 +363,7 @@ function aaa(){
     </v-row>
     <v-row>
       <v-col>
-    <v-switch color="primary" v-model="stackGraph" density="compact" hide-details class="switch-center" label="返済元金と返済利息を積み重ねる"></v-switch>
+    <v-switch color="primary" v-model="返済元金と返済利息を積み重ねる" density="compact" hide-details class="switch-center" label="返済元金と返済利息を積み重ねる"></v-switch>
       </v-col>
     </v-row>
     <v-row>
