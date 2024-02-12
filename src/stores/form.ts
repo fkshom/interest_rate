@@ -46,7 +46,7 @@ export const useFormStore = defineStore('form', () => {
     }
   ]
   const 繰り上げ返済items = ref<繰り上げ返済item[]>([])
-  繰り上げ返済items.value = 繰り上げ返済items_default.concat()
+  繰り上げ返済items.value = structuredClone(繰り上げ返済items_default)
   const 金利変動items_default: 金利変動item[] = [
     {
       回目: 60,
@@ -55,13 +55,13 @@ export const useFormStore = defineStore('form', () => {
     }
   ]
   const 金利変動items = ref<金利変動item[]>([])
-  金利変動items.value = 金利変動items_default.concat()
+  金利変動items.value = structuredClone(金利変動items_default)
 
   const reset繰り上げ返済items = () => {
-    繰り上げ返済items.value = 繰り上げ返済items_default.concat()
+    繰り上げ返済items.value = structuredClone(繰り上げ返済items_default)
   }
   const reset金利変動items = () => {
-    金利変動items.value = 金利変動items_default.concat()
+    金利変動items.value = structuredClone(金利変動items_default)
   }
 
   const 返済元金と返済利息を積み重ねる = ref(true)
