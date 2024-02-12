@@ -25,7 +25,7 @@ export const useFormStore = defineStore('form', () => {
   const 金利 = ref<number>(2.0)
   const 借入期間 = ref<number>(120)
   const 返済方法 = ref<'元利均等'|'元金均等'>("元利均等")
-  const 繰り上げ返済items_default = ref<繰り上げ返済item[]>([
+  const 繰り上げ返済items_default: 繰り上げ返済item[] = [
     {
       回目: 2,
       金額: 3,
@@ -44,24 +44,24 @@ export const useFormStore = defineStore('form', () => {
       タイプ: '返済額軽減型',
       有効: false,
     }
-  ])
+  ]
   const 繰り上げ返済items = ref<繰り上げ返済item[]>([])
-  繰り上げ返済items.value = 繰り上げ返済items_default.value
-  const 金利変動items_default = ref<金利変動item[]>([
+  繰り上げ返済items.value = 繰り上げ返済items_default.concat()
+  const 金利変動items_default: 金利変動item[] = [
     {
       回目: 60,
       金利: 20.0,
       有効: true,
     }
-  ])
+  ]
   const 金利変動items = ref<金利変動item[]>([])
-  金利変動items.value = 金利変動items_default.value
+  金利変動items.value = 金利変動items_default.concat()
 
   const reset繰り上げ返済items = () => {
-    繰り上げ返済items.value = 繰り上げ返済items_default.value
+    繰り上げ返済items.value = 繰り上げ返済items_default.concat()
   }
   const reset金利変動items = () => {
-    金利変動items.value = 金利変動items_default.value
+    金利変動items.value = 金利変動items_default.concat()
   }
 
   const 返済元金と返済利息を積み重ねる = ref(true)
